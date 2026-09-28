@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Neural Network From Scratch by Mason Clarke — backpropagation and gradient descent written by hand, training live in your browser." />
+    <meta name="theme-color" content="#020617" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2300adff'/%3E%3Cg stroke='%23020617' stroke-width='1.5'%3E%3Cpath d='M8 10L16 8M8 10L16 16M8 10L16 24M8 22L16 8M8 22L16 16M8 22L16 24M16 8L24 16M16 16L24 16M16 24L24 16'/%3E%3C/g%3E%3Cg fill='%23020617'%3E%3Ccircle cx='8' cy='10' r='2.5'/%3E%3Ccircle cx='8' cy='22' r='2.5'/%3E%3Ccircle cx='16' cy='8' r='2.5'/%3E%3Ccircle cx='16' cy='16' r='2.5'/%3E%3Ccircle cx='16' cy='24' r='2.5'/%3E%3Ccircle cx='24' cy='16' r='2.5'/%3E%3C/g%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="styles/app.css" />
+    <title>Neural Network From Scratch · Mason Clarke</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="topbar__brand" href="https://masons-resume-website.netlify.app/"><span class="topbar__logo">MC</span> Mason Clarke</a>
+      <nav class="topbar__links">
+        <a href="https://masons-resume-website.netlify.app/#projects">Portfolio</a>
+        <a href="https://github.com/Masons-coding/neural-net-from-scratch">Source</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <p class="eyebrow">machine learning &amp; ai</p>
+        <h1>Neural Network From Scratch</h1>
+        <p class="lead">
+          A multilayer perceptron with backpropagation and mini-batch gradient descent written by hand, with no ML libraries. Pick a
+          dataset and an architecture, press play, and watch the decision boundary, weights and loss curves change as it learns.
+        </p>
+      </section>
+
+      <div class="grid grid--sidebar">
+        <aside class="panel sidebar">
+          <label class="field">Dataset
+            <select id="dataset"></select>
+          </label>
+          <label class="field">Noise <output id="noise-out">0.05</output>
+            <input id="noise" type="range" min="0" max="0.3" step="0.01" value="0.05" />
+          </label>
+          <label class="field">Hidden layers (neurons per layer)
+            <input id="layers" type="text" value="16, 16" spellcheck="false" />
+          </label>
+          <p class="error small" id="layers-error" hidden></p>
+          <div class="two">
+            <label class="field">Activation
+              <select id="activation">
+                <option value="relu" selected>ReLU</option>
+                <option value="tanh">tanh</option>
+                <option value="sigmoid">sigmoid</option>
+                <option value="linear">linear</option>
+              </select>
+            </label>
+            <label class="field">Optimizer
+              <select id="optimizer">
+                <option value="adam" selected>Adam</option>
+                <option value="momentum">Momentum</option>
+                <option value="sgd">SGD</option>
+              </select>
+            </label>
+          </div>
+          <div class="two">
+            <label class="field">Learning rate
+              <select id="lr">
+                <option>0.001</option><option>0.003</option><option selected>0.01</option><option>0.03</option><option>0.1</option><option>0.3</option><option>1</option>
+              </select>
+            </label>
+            <label class="field">Batch size
+              <select id="batch">
+                <option>1</option><option>5</option><option selected>10</option><option>30</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">L2 regularisation
+            <select id="l2">
+              <option value="0" selected>none</option><option>0.0001</option><option>0.001</option><option>0.01</option>
+            </select>
+          </label>
+          <button class="btn btn--primary" id="play">▶ Train</button>
+          <div class="two">
+            <button class="btn" id="step">Step epoch</button>
+            <button class="btn btn--orange" id="reset">Reset weights</button>
+          </div>
+          <button class="btn" id="regen">New data sample</button>
+          <label class="check"><input type="checkbox" id="show-test" checked /> Show test data</label>
+        </aside>
+
+        <div class="stack">
+          <div class="stats" id="stats"></div>
+
+          <div class="viz">
+            <section class="panel">
+              <h2>Decision boundary</h2>
+              <canvas id="boundary" width="480" height="480" aria-label="Decision boundary and data points"></canvas>
+              <p class="muted small">Click to add a <b class="c1">blue</b> point · Shift-click (or right-click) for <b class="c0">orange</b>. ● train · ○ test</p>
+            </section>
+            <div class="stack">
+              <section class="panel">
+                <h2>Network <span class="muted small" id="arch"></span></h2>
+                <div id="network" class="network"></div>
+                <p class="muted small"><b class="c1">Blue</b> = positive weight, <b class="c0">orange</b> = negative, thickness = magnitude.</p>
+              </section>
+              <section class="panel">
+                <h2>Loss</h2>
+                <canvas id="loss" width="480" height="180" aria-label="Training and test loss over epochs"></canvas>
+                <p class="muted small"><b class="c1">train</b> vs <b class="c0">test</b> binary cross-entropy — a widening gap means overfitting.</p>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <details class="learn panel">
+        <summary>How it works</summary>
+        <ul>
+          <li><strong>Forward pass.</strong> Each neuron computes <code>a = f(w·x + b)</code>. Hidden layers use the chosen activation, and the output uses a sigmoid to give a probability.</li>
+          <li><strong>Backpropagation.</strong> With sigmoid + binary cross-entropy the output error simplifies to <code>prediction − target</code>. The chain rule pushes that error backwards: each layer's error is the next layer's error × weights × the activation's derivative.</li>
+          <li><strong>Verified with gradient checking.</strong> The test suite compares every backprop gradient with a numerical central-difference estimate, and they agree to within 10⁻⁴.</li>
+          <li><strong>Why hidden layers matter.</strong> With no hidden layer (or a linear activation) the model is logistic regression and can only draw a straight line. The tests prove it fails on XOR, and adding hidden layers solves it.</li>
+          <li><strong>Optimizers.</strong> Plain SGD steps straight down the gradient. Momentum keeps a running velocity to roll through noisy, zig-zagging gradients. Adam adapts a separate step size for every parameter from bias-corrected running averages of the gradient and its square. Try the spiral with each one.</li>
+          <li><strong>Initialisation and regularisation.</strong> He initialisation for ReLU and Xavier for tanh/sigmoid keep signals from exploding or vanishing, and L2 weight decay fights overfitting (watch the test loss).</li>
+        </ul>
+      </details>
+    </main>
+
+    <footer class="footer">
+      Built by <a href="https://masons-resume-website.netlify.app/">Mason Clarke</a> · Pure JavaScript, no ML libraries ·
+      <a href="https://github.com/Masons-coding/neural-net-from-scratch">View source</a>
+    </footer>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

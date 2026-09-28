@@ -1,0 +1,13 @@
+{
+  "name": "neural-net-from-scratch",
+  "version": "1.0.0",
+  "description": "A neural network built from scratch in JavaScript: backpropagation, mini-batch gradient descent and live decision-boundary visualisation.",
+  "type": "module",
+  "private": true,
+  "author": "Mason Clarke",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "start": "npx --yes serve ."
+  }
+}

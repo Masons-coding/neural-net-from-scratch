@@ -1,0 +1,100 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  align-self: start;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.small {
+  font-size: 0.82rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.check input {
+  accent-color: var(--cyan);
+}
+
+.viz {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1100px) {
+  .viz {
+    grid-template-columns: 1fr;
+  }
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border);
+  background: #040a1c;
+}
+
+#boundary {
+  cursor: crosshair;
+  aspect-ratio: 1;
+  margin-bottom: 0.6rem;
+}
+
+#loss {
+  margin-bottom: 0.6rem;
+}
+
+.network {
+  margin-bottom: 0.5rem;
+}
+
+.network svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.network text {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--muted);
+}
+
+.c1 {
+  color: var(--cyan);
+}
+
+.c0 {
+  color: var(--orange);
+}
+
+code {
+  font-family: var(--mono);
+  color: var(--cyan);
+  font-size: 0.85em;
+}
+
+.stat__value.good {
+  color: #4ade80;
+}
